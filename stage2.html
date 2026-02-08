@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Stage2 - Observer Console</title>
+  <style>
+    :root { color-scheme: dark; }
+    body{
+      margin:0; padding:24px;
+      background:#000; color:#00ff88;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      line-height:1.5;
+    }
+    .wrap{ max-width: 820px; margin:0 auto; }
+    .muted{ color:#00c96a; opacity:.9; }
+    .panel{
+      border:1px solid #00ff88; border-radius:12px;
+      padding:16px; margin-top:14px;
+      box-shadow: 0 0 0 1px rgba(0,255,136,.15) inset;
+    }
+    .log{
+      min-height: 220px;
+      white-space: pre-wrap;
+      word-break: break-word;
+      overflow:auto;
+      max-height: 46vh;
+    }
+    button{
+      background:#000; color:#00ff88;
+      border:1px solid #00ff88;
+      padding:10px 12px; border-radius:10px;
+      font: inherit;
+      cursor:pointer;
+    }
+    button:hover{ filter: brightness(1.12); }
+    .row{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-top:12px; }
+    .hidden{ display:none; }
+    footer{
+      margin-top:18px; font-size:12px;
+      color:#00c96a; opacity:.7;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="muted">CASE: CC-03-2411</div>
+    <h1 style="margin:6px 0 0;">Stage2</h1>
+    <div class="muted">ACCESS VERIFIED</div>
+
+    <div class="panel">
+      <div id="log" class="log" aria-live="polite"></div>
+
+      <div id="unlockBlock" class="hidden">
+        <div class="muted" style="margin-top:8px;">Audio Log Unlocked: AL-01</div>
+        <div class="row">
+          <button id="playBtn" type="button">PLAY</button>
+          <span class="muted" id="playState"></span>
+        </div>
+
+        <audio id="audio" preload="none">
+          <source src="AL-01_observer_log.mp3" type="audio/mpeg" />
+        </audio>
+
+        <div id="afterLine" class="muted hidden" style="margin-top:10px;">Inconsistency detected.</div>
+      </div>
+    </div>
+
+    <footer>
+      本作はフィクションです。実在の人物・団体・事件とは関係ありません。
+    </footer>
+  </div>
+
+  <script>
+    const logEl = document.getElementById("log");
+    const unlock = document.getElementById("unlockBlock");
+    const playBtn = document.getElementById("playBtn");
+    const playState = document.getElementById("playState");
+    const audio = document.getElementById("audio");
+    const afterLine = document.getElementById("afterLine");
+
+    function ts(){
+      const d = new Date();
+      const pad = (n)=> String(n).padStart(2,"0");
+      return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+    }
+    function append(line){
+      logEl.textContent += `[${ts()}] ${line}\n`;
+      logEl.scrollTop = logEl.scrollHeight;
+    }
+
+    // ログを1行ずつ流してから解禁
+    const lines = [
+      "Designation confirmed.",
+      "Reconstructing memory...",
+      "Synchronizing logs...",
+      "Memory consistency: 94%",
+      "External observer registered.",
+      "Unlocking resource: AL-01"
+    ];
+
+    let i = 0;
+    append("Session resumed.");
+    const timer = setInterval(()=>{
+      append(lines[i]);
+      i++;
+      if(i >= lines.length){
+        clearInterval(timer);
+        unlock.classList.remove("hidden");
+      }
+    }, 800);
+
+    // 再生ボタン（モバイル対策：ユーザー操作で再生）
+    playBtn.addEventListener("click", async ()=>{
+      try{
+        if(audio.paused){
+          await audio.play();
+          playState.textContent = "Playing...";
+        }else{
+          audio.pause();
+          playState.textContent = "Paused.";
+        }
+      }catch(e){
+        playState.textContent = "Playback blocked. Tap again.";
+      }
+    });
+
+    // 再生後に一言だけ出す（完結）
+    audio.addEventListener("ended", ()=>{
+      playState.textContent = "Completed.";
+      afterLine.classList.remove("hidden");
+      append("Audio playback completed.");
+    });
+  </script>
+
+<script>
+(function(){
+  const passed = sessionStorage.getItem("cc03_passed")==="1";
+  const ok2 = sessionStorage.getItem("cc03_stage2_ok")==="1";
+  if(!passed || !ok2){ window.location.replace("index.html"); return; }
+})();
+</script>
+
+</body>
+</html>
