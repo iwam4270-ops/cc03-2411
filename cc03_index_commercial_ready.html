@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CC-03-2411 | Internal Report Portal</title>
+<style>
+body{
+  margin:0;
+  padding:40px;
+  background:#000;
+  color:#00ff88;
+  font-family:monospace;
+}
+.container{
+  max-width:720px;
+  margin:auto;
+}
+input{
+  width:100%;
+  padding:12px;
+  margin:8px 0 18px;
+  background:#111;
+  border:1px solid #00ff88;
+  color:#00ff88;
+}
+button{
+  padding:10px 18px;
+  background:#002a18;
+  border:1px solid #00ff88;
+  color:#00ff88;
+  cursor:pointer;
+}
+button:hover{
+  background:#004d2c;
+}
+.message{
+  margin-top:12px;
+  font-size:13px;
+}
+.error{
+  color:#ff4444;
+}
+.notice{
+  font-size:12px;
+  opacity:0.7;
+  margin-bottom:20px;
+}
+</style>
+</head>
+<body>
+<div class="container">
+<h2>INTERNAL REPORT SUBMISSION</h2>
+
+<div class="notice">
+※購入者専用ページです。<br>
+販売ページに記載された「購入者コード」を入力してください。
+</div>
+
+<label>購入者コード</label>
+<input id="code" placeholder="例: CC03-REPORT-2026">
+
+<label>死亡推定時刻</label>
+<input id="q1" placeholder="例: 23:40">
+
+<label>認証ログ時刻</label>
+<input id="q2" placeholder="例: 23:52">
+
+<label>固定確認文言のキーワード</label>
+<input id="q3" placeholder="例: 冷える">
+
+<label>現在擬態している人物</label>
+<input id="q4" placeholder="例: 杉山 健太">
+
+<button onclick="check()">SUBMIT</button>
+
+<div id="msg" class="message"></div>
+</div>
+
+<script>
+const VALID_CODE = "CC03-REPORT-2026";
+
+function normalize(text){
+  return text.replace(/\s+/g,"").trim();
+}
+
+function check(){
+
+  const code = document.getElementById("code").value.trim();
+  const q1 = document.getElementById("q1").value.trim();
+  const q2 = document.getElementById("q2").value.trim();
+  const q3 = normalize(document.getElementById("q3").value);
+  const q4 = normalize(document.getElementById("q4").value);
+  const msg = document.getElementById("msg");
+
+  if(code !== VALID_CODE){
+    msg.innerHTML = "REJECTED : 購入者コードが無効です";
+    msg.className = "message error";
+    return;
+  }
+
+  if(q1 === "23:40" &&
+     q2 === "23:52" &&
+     q3 === "冷える" &&
+     (q4 === "杉山健太")){
+
+     sessionStorage.setItem("cc03_passed","1");
+     msg.innerHTML = "ACCEPTED. Redirecting...";
+     msg.className = "message";
+     setTimeout(()=>{location.href="observe.html";},800);
+
+  } else {
+     msg.innerHTML = "REJECTED : 入力値を再確認してください";
+     msg.className = "message error";
+  }
+}
+</script>
+
+</body>
+</html>
